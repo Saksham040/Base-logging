@@ -25,3 +25,13 @@ update_config = re.sub(pattern, repl, running_config)  # Replace the matched sec
 
 # Print the updated configuration to verify changes
 print(update_config)  # Display the modified configuration to confirm the update
+
+# send the updated configuration back to the device
+csr.send_config_set(update_config.split('\n'))
+
+#Save the configuration to the startup configuration:
+csr.send_command('write memory')
+
+
+#Disconnect the session once done:
+csr.disconnect()
