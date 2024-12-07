@@ -1,0 +1,114 @@
+in oops such as python, everything u create is an object an object can have attributes and methods that are linked to it.
+
+So how do u know what attributes and methods are linked to the object?
+
+objects are an instance of a class
+
+u can think of a class as blueprint
+
+
+
+class (blueprint)
+class: cisco switch 
+attributes; hostname
+management_ip
+vlan_id
+vlan_name
+
+
+method ; sh ip int br
+
+
+Instance
+Class : Switch1
+Attributes: hostname: switch1
+management_IP: 192.168.5.2
+VLAN_ID: 101
+VLAN_Name: Client PC
+
+Method: sh ip int bri
+
+----------------
+
+an object is an instance of a class
+in the x, the object is called Switch1, this instance has values linked to the attributes and has access to all the Cisco Switch class methods
+
+import netmiko
+class Cisco:
+#class Name
+
+def __init__(self, hostname, ip, device_type, username, password):
+
+self.hostname = hostname
+self.conn_data = {
+'ip': ip,
+'device_type': device_type,
+'username': username, 
+'password': password
+}
+#Aforementioned are attributes
+
+def login(self):
+return netmiko.ConncetHandler(**self.conn_data)
+#aforementioned is Method
+
+'''
+to create a class, u first use the keyword class followed by the <name of the class> and a colon(:), The second command, def __init__(self, hostname, ip, device_type, username, password) defines the init method. The init method is a reserved method that is also known as a constructor. Constructors are called when u want to create an object from class. Arguments in the constructor are used as an object`s variables.
+
+there are two types of variables in a class; one is class variable, and one is an instance variable. A class variable is assigned like any other variable and never changes, no matter how many instances you make. The only way to change this variable is to change your code. The command to make a class variable is as follows:
+
+class Cisco:
+support = ' ciscosupport@cisco.com'
+
+the support = 'ciscosupport@cisco.com' is the class variable
+to make variables that change with each instance, use the __init__ method
+All attributes under the __init__ method will be set when each instance is run.
+
+the first argumetns I the __init__ method is self; this keyword can be anything you want it to be, but self is recommended. Self represents the instance of a class and allows the class to keep the different instances and the arguments that go with them separate. The code to create instance variables is as  follows
+
+'''
+class Cisco:
+def __init__(self, hostname, ip, device_type, username, password):
+self.hostname = hostname
+self.conn_data = {
+'ip' : ip,
+'device_type' : device_type,
+'username' : username,
+'password' : password
+}
+
+def login(self):
+return netmiko.ConnectHandler(**self.conn_data)
+
+
+'''
+Here, the Cisco class has the variables hostname, ip, device_type, username, and password.
+to assign each of these variables to a new object, use command
+
+self.hostname = hostname self.conn_data = {'ip': ip, 'device_type': device_type, 'username': username, 'password}
+
+This Cisco class also has one method
+this method is used for logging into a device. The commands below show the method
+def login(self):
+return netmiko.ConnectHandler(**self.conn_data)
+
+
+The method login takes the self.conn_data information and unpacks it
+it then uses netmiko to make an SSH connection to the device
+
+
+router1 = Cisco('csr1kv1', '10.10.10.1', 'cisco_ios', 'cisco1', 'cisco_pw_1')
+
+router2 = Cisco('csr1kv2', '10.10.10.2', 'cisco_ios', 'cisco2', 'cisco_pw_2')
+#create instances of Cisco Class
+
+router1_conn = router1.login()
+router2_conn = router2.login()
+#Run login() method for each instance
+
+'''
+in aforementioned, we create 2 instances of Cisco class, one caller router1, and another called router2.
+when we create each instance through the process known as instantiation, we provide parameters that will be used for connection.
+Each instance can have unique values for its attributes but they will all share the same methods.
+After creating two instances, u call the login() method on each instance, which will return a connected SSH object to the variables router1_conn and router2_conn
+ '''
