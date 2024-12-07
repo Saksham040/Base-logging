@@ -1,0 +1,85 @@
+using inheritance to extend functionality
+
+Inheritance allows u to define a class that inherits all the methods and attributes from another class.
+Inheritance is important because it allows for code reusability and it represents real-world relationships.
+
+The class that is being inherited from is known as the base class or parent class
+the class that inherits from another class is called the derived class or child class
+
+
+import netmiko
+class CiscoIOSBase:
+"""Base connectivity functions for Cisco IOS devices"""
+#this parent class will act as a base class for connecting to Cisco IOS devices
+
+def __init__(self, ip, username = None, password = None):
+self.conn_data = {
+'ip': ip,
+'username': username,
+'password': password, 
+'device_type': 'cisco_ios'
+}
+
+def login(self):
+self.conn = netmiko.ConnectHandler(**self.conn_data)
+
+#the children classes could specifically deal with IOS routers and switches
+
+'''
+deriving one class from another is part of code reuse; you get all the parent`s attributes and methods without rewriting it.
+
+This makes your code cleaner, and it allows for faster development. In the following code, you are making a child class called CiscoIOSRouter from the parent class CiscoIOSBase.
+
+
+class CiscoIOSRouter(CiscoIOSBase):
+pass
+#while the code is simple to explain the concept, it doesn`t accomplish much because each class would be the same. Ideally, u want to inherit all the attributes and methods from the base class and add functionality to it.
+
+
+
+class CiscoIOSRouter(CiscoIOSBase):
+#this class "CiscoIOSBase" inherits its constructor and some other functions from CiscoIOSBase.
+
+"""Functions specific to IOS routers"""
+
+def get_run(self):
+return self.conn.send_command('sh run')
+
+def get_log(self):
+return self.conn.send_command('sh log')
+
+router1 = CiscoIOSRouter('10.254.0.1', username = 'cisco', password ='cisco')
+#Functions from CiscoIOSBase
+router1.login()
+
+print(router1.get_run())
+print(router1.get_log())
+#Functions unique to CiscoIOSRouter
+
+
+The ex shown above are the child class created from the parent class "CiscoIOSBase". The child class CiscoIOSRouter has two new methods, get_run() and get_log().
+
+let`s examine each of lines of code
+
+-> this command makes a new class inherited from the cisco class
+class CiscoIOSRouter(CiscoIOSBase):
+
+-> Because the __init__() function is not defined in the child class, it is inherited from the parent class.
+The child class also inherits the login() function and would inherit all other functions and attributes from the parent class
+
+-> there are 2 methods defined in the CiscoIOSRouter class.
+The first method shown below will return the output from the command sh run.
+def get_run(self):
+return self.conn.send_command('sh run')
+
+
+=> The second method will return the output from the command sh log
+def get_log(self):
+return self.conn.send_command('sh log')
+
+
+in the bounding box towards the bottom of the figure above, we create an instance of the child class CiscoIOSRouter using the constructor from the parent class, then login() to a device with another function inherited from the parent class.
+After we log in you use the methods in the CiscoIOSRouter class to print the running config and log to the terminal
+
+
+To continue developing this class, we would most likely create functions in the class CiscoIOSRouter that are unique to routers. We could also create another class called CiscoIOSSwitch that inherits from CiscoIOSBase and would contain functions specific to switches
