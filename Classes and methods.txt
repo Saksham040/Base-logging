@@ -1,0 +1,281 @@
+import netmiko
+
+class Cisco:
+#Class Name
+
+
+def __init__(self, hostname, ip, device_type, username, password):
+
+self.hostname = hostname
+self.conn_data = {
+'ip' : ip,
+'device_type' : device_type,
+'username' : username,
+'password' : password 
+}
+def login(self):
+return netmiko.ConnectHandler(**self.conn_data)
+
+
+def login(self):
+return netmiko.ConnectHandler(**self.conn_data)
+
+
+the method login takes the self.conn_data information and unpacks it.
+
+It then uses netmiko to make an SSH connection to the device
+
+
+router1 = Cisco('csr1kv1', '10.10.10.1', 'cisco_ios', 'cisco1', 'cisco_pw_1')
+
+router2 = Cisco('csr1kv2', '10.10.10.2', 'cisco_ios', 'cisco2', 'cisco_pw_2')
+
+//Create instances of Cisco Class
+
+router1_conn = router1.login()
+router2_conn = router2.login()
+
+Run login() Method for each instance
+
+when we create each instance through the process known as instantiation, u provide parameters that will be used for the connection
+
+each instance can have unique values for its attributes, but they will all share the same methods. After creating two instances, u call the login() method on each instance, which will return a connected SSH object to the variables router1_conn and router2_conn
+
+------------------------
+
+
+Using Inheritance to Extend Functionality
+Inheritance allows u to define a class that inherits all the methods and attributes from another class. Inheritance is important because it allows for code reusability and it represents real-world  relationships. The class that is being inherited from is known as the base class or parent class.
+the class that inherits from another class is called the derived class or child class
+
+
+
+import netmiko
+
+class CiscoIOSBase:
+"""Base connectivity functions for Cisco IOS devices"""
+
+#This parent class will act as a base class for connecting to Cisco IOS devices.
+
+
+def __init__(self, ip, username = None, password = None):
+self.conn_data = {
+'ip' : ip,
+'username' : username,
+'password' : password,
+'device_type' : 'cisco_ios'
+}
+
+def login(self):
+self.conn = netmiko.ConnectHandler(**self.conn_data)
+
+
+#the children classes could specifically deal with IOS routers and switches
+
+
+Deriving one class from another is part of code reuse; you get all the parent`s attributes and methods without rewriting it.  This makes ur code cleaner, and it allows for faster development. In the following code, we are making a child class called CiscoIOSRouter from the parent class CiscoIOSBase.
+
+class CiscoIOSRouter(CiscoIOSBase):
+pass
+
+While the code is simply to explain the concept, it doesn`t accomplish much because each class would be the same. 
+Ideally we want to inherit all the attributes and methods from the base class and add functionality to it.
+
+
+
+
+class CiscoIOSRouter(CiscoIOSBase):
+#This class inherits its constructor and some other functions from CiscoIOSBase
+
+"""Functions specific to IOS routers"""
+
+def get_run(self):
+return self.conn.send_command('sh run')
+
+def get_log(self):
+return self.conn.send_command('sh log')
+
+router1 = CiscoIOSRouter('10.254.0.1', username = 'cisco', password = 'cisco')
+#Functions from CiscoIOSBase
+
+router1.lgoin()
+#Functions from CiscoIOSBase
+
+print(router1.get_run())
+print(router1.get_log())
+#Functions unique to CiscoIOSRouter
+
+
+The example shown in the figure are the child class created from the parent calss CiscoIOSBase. The child class CiscoIOSRouter has two new methods, get_run() and get_log().
+
+Let`s examine each of the lines of code:
+-> this command makes a new class inherited from the cisco class.
+class CiscoIOSRouter(CiscoIOSBase):
+
+-> Because the __init__() function is not defined in the child class, it is inherited from the parent class. The child class also inherits the login() function and would inherit all other functions and attributes from the parent class
+
+
+-> There are two methods defined in the CiscoIOSRouter class. The first method shown below will return the output from the command sh run.
+
+def get_run(self):
+return self.conn.send_command('sh run')
+
+-> The second method will return the output from the command sh log
+def get_log(self):
+return self.conn.send_command('sh log')
+
+
+we create an instance of the child class CiscoIOSRouter using the constructor from the parent class, then login() to a device with another function inherited from the parent class. After u login , u use the methods in the CiscoIOSRouter class to print the running config and log to the terminal.
+
+To continue developing this class, we would most likely create functions in the class CiscoIOSRouter that are unique to routers. We could also create another class called CisoIOSSwitch that inherits from CiscoIOSBase and would contain functions specific to switches.
+
+===============================
+We will create a class called Cisco() that will collect connection data for a Cisco appliance. We will also create a class called CiscoIOS() that extends the Cisco() class. The CiscoIOS() will set the device-type to cisco_ios on connection. The methods of CiscoIOS() will perform tasks specific to Cisco IOS
+
+
+
+import netmiko
+
+
+class Cisco:
+
+
+#define the __init__() function with the following parameters
+#slef should always be the first argument of this function
+#after self, use the argument ip
+#the keyword arguments device_type, username, password should have the default value of None
+
+
+#The __init__() function is the initialzer for the Cisco class and it will run on instantiation of each new instance of the class. The __init__() function header should be indented four spaces and the function body should be indented at least eight spaces
+
+
+
+
+def __init__(self, ip, device_type = None, username = None, Password = None):
+
+#Create the instance variable self.conn_data and assign it the value of following dictionary:
+self.conn_data = {
+'ip' : ip,
+'device_type' : device_type,
+'username' : username,
+'password' : password
+}
+
+
+#now create a class function called login() that will return an SSH connection. Be sure to leave a line of whitespace on the line below 
+the function header
+
+
+#def login(self):
+
+return netmiko.ConnectHandler(**self.conn_data)
+
+#The login() function starts an SSH connection to a device whose connection data is in self.conn_data. The special characters ** unpack arguments from the dictionary self.conn_data and we use those as the keyword arguments for netmiko.ConnectHandler(). The return statement returns an SSH connection to a device that another function can use to perform some specific task
+
+
+import netmiko
+
+class Cisco:
+
+def __init__(self, ip, device_type = None, username =None, password=None):
+
+self.conn_data = {
+'ip' : ip,
+'device_type' : device_type,
+'username' : username,
+'password' : password
+}
+
+def login(self):
+return netmiko.ConnectHandler(**self.conn_data)
+
+
+
+The Cisco() class is essentially a wrapper for the netmik connection process. In software development, a  wrapper is code whose main purpose is to call another piece of code to run. In this case, the wrapper is used to reduce the complexity of netmiko.ConnectHandler() through abstraction.
+
+Next we will create another class called CiscoIOS() that extends the functionality of Cisco()
+
+
+
+#type the following code to define the class CiscoIOS which extends the cisco class. We are defining a new class, so surround this line of code with two lines of whitespace.
+
+class CiscoIOS(Cisco):
+
+
+define the __init__() function with following parameters:
+-> use the arguments self and ip
+-> keyword arguments username and password should have the default value of None.
+
+class CiscoIOS(Cisco):
+def__init__(self, ip , username = None, password = None):
+
+
+-> the class CiscoIOS() can inherit certain functionality from its parent, Cisco(). the function super() enables u to call functions from a parent class (also called a superclass) in its child or sibling classes. This is useful when u want to change the way a function defined in the parent class behaves in a child class
+
+Next
+CiscoIOS.__init__() function, type the following code to use super() to call Cisco.__init__(). 
+
+This child class is designed to only work with appliances running Cisco IOS, so set the value of the key 'device_type' to be the string 'cisco_ios'
+
+super().__init__(ip, device_type ='cisco_ios', username = 'cisco', password = 'cisco')
+
+ #create a function header for a function called populate_interface_list() with the parameter self. Type
+
+def populate_interface_list(self):
+
+
+class CiscoIOS(Cisco):
+def__init__(self, ip, username=None, password=None):
+
+super().__init__(ip, device_type='cisco_ios', username=username, password=password)
+
+def populate_interface_list(self)L
+
+conn = self.login()
+sh_ip_int_br = conn.send_command('sh ip int br', use_textfsm=True)
+self.interface_list = []
+for interface in sh_ip_int_br:
+self.interface_list.append(interface['intf'])
+
+#Children classes inherit defined methods and attributes from their parent class. The function login() is defined in the parent class Cisco, so it is also a method of the CiscoIOS child class. The populate_interface_list() function will use the connection returned from login() to send the command sh ip int br to the router, parse the formatted router output, and populate the instance variable self.interface_list with interface names
+
+
+def populate_interface_list(self):
+#repeating
+sh_ip_int_br = conn.send_command('sh ip int br', use_textfsm = True)
+
+self.interface_list = []
+for interface in sh_ip_int_br:
+self.interface_list.append(interface['intf'])
+
+
+csr1kv1 = CiscoIOS('10.254.0.1', username = 'cisco', password = 'cisco')
+#type the following code to create an instance of the CiscoIOS() class called csr1kv1. This line of code is not within a class or function adn should not be indented at all.
+
+csr1kv1 = CiscoIOS('10.254.0.1', username = 'cisco', password = 'cisco')
+
+
+#at this point , the instance csr1kv1 does not have an attribute called interface_list. Call the method populate_interface_list() on csr1kv1. After this line of code, the csr1kv1 object will have the attribute interface_list and it will be populated with the names of the interfaces currently running on the router at 10.254.0.1
+
+csr1kv1.populate_interface_list()
+
+
+We can use the name of an instance to run methods or return the value of instances attributes. Now that interface_list exists as an attribute of csr1kv1, print its contents to the terminal to confirm it is being populated as u expect.
+
+type print(csr1kv1.interface_list)
+
+
+
+csr1kv1 = CiscoIOS('10.254.0.1', username = 'cisco', password = 'cisco')
+csr1kv1.populate_interface_list()
+print(csr1kv1.interface_list)
+
+
+
+--> before running confirm the directory 
+/lab_work
+
+cd ~/codes 
+(like directory which i made)
+
+python cisco.py
