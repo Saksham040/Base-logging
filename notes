@@ -1,0 +1,223 @@
+regular expression are used in transforms and search rules to match dialed strings or URI
+
+Match any uri
+reges .*
+matches all strings
+
+Match digits only
+Regex ^\d +$
+matches any numeric stirng
+
+Match 4-digit Extensions
+Regex : ^(\d{4})$
+matches exactly 4 digits
+
+match specific domain
+regex: .*@example.com
+matches any URI ending with @example.com
+
+Strip leading digits and replace
+Regex ^9(\d+)$
+Replacement \1
+Removes leading 9 from dialed numbers
+
+How to use regex in expressway
+-> use regex in Transforms to modify dialed URIs
+-> Use regex in Search Rules to match specific call patterns for routing
+
+
+Configuration Example: End-to-End Call Routing
+Element 
+Transform -> match ^(\d{4})$ -> replace \1@example.com (convert 4 digit extensions to SIP URI)
+
+Search Rule 
+Pattern .*@example.com -> Route to CUCM_Neighbor Zone
+
+Neighbor Zone
+Create a neighbor zone pointing to CUCM`s IP/FQDN with SIP enabled
+
+Regular Expression 
+Used in bot transforms and search rules to match and manipulate dialed numbers/URIs
+
+
+Configure B2B Business-to-Business collaboration solution using Cisco Expressway and integrating with CUCM
+
+
+1) DNS Record (Focus on Microsoft DNS)
+Configure DNS to enable proper routing for SIP-based B2B communication
+
+a) Create "A" Records
+-> Create A records for expressway-E external IP or FQDN
+Record Name: expressway-e.example.com
+IP address : External IP of Expressway-E
+
+b) Create SRV records
+-> Create SRV records for SIP services
+Service: _sip
+protocol: _tcp or _tls
+priority: 10
+weight: 10 
+Port: 5061
+Target: expressway-e.example.com
+
+Example DNS Records:
+Record Type
+A records
+Name -> expressway-e 
+Value 203.0.113.10
+
+SRV Record
+_sip._tls.example.com
+10 10 5061 expressway-e.example.com
+
+Using CLI
+nslookup -type=srv _sip._tls.example.com
+
+
+2 CERTIFICATES (Focus on Microsoft CA)
+Objective 
+Secure TLS communication for SIP traffic using certificates issued by a Microsoft Certificate Authority (CA)
+Steps:
+1) Generate a Certificate Signing Request (CSR):
+On Expressway-C and Expressway-E, navigation part
+Maintenece > Security Ceritifcate > Server Certificates
+
+2) Generate a CSR, including
+Common Name (CN): FQDN of the expressway (eg. expressway-e.example.com)
+Subject Alternate Names (SANs): All relevant domains for B2B communication (e.g. example.com , sip.example.com)
+
+3) Submit the CSR to Microsoft CA:
+-> Use the Microsoft CA web interface (https://<CA-Server>/certsrv)
+-> Choose Web Server Certificate template
+
+4) Install the Certificate
+On expressway, upload the signed server certificate and the CA root/intermediate certificates
+
+5) Enable TLS;
+-> Ensure SIP traffic uses TLS on port 5061
+
+
+verification:
+-> use openSSL to test certificate
+openssl s_client -connect expressway-e.example.com:5061
+
+
+Traversal Zones
+-> Enable secure traversal of SIP signaling and media traffic between Expressway-C and Expressway-E 
+Steps
+On Expressway-C
+navigate to configuration > zones > zones
+Create a traversal client zone
+Name : Traversal_Client
+Peer Address : FQDN or IP of Expressway-E
+Authentication : Enter shared credentials (configured on Expressway-E)
+
+2) On Expressway-E
+Navigate to configuration > zones > ZOnes
+Create traversal server zone
+name traversal_server
+authentication: same credentials as configured on Expressway-C
+
+Verification:
+-> Check zone status under status > zones both zones should display Active
+
+
+
+Negibor zones
+set up neighbor zones for direct communication with external or internal systems like cucm or other sip servers
+navigate to zones configuration
+go to configuration > zones > zones
+
+Create a neighbor zone
+Name: CUCM_Neighbor
+SIP Mode: Enable SIP
+Peer Address: IP address or FQDN of CUCM
+Port ; 5061 (TCP) or 5061(TLS)
+Authentication: configure credentials if required
+
+Verification:
+Test connectivity using diagnostics > zone status
+
+
+-> Transforms
+Modify dialed number or SIP URIs for proper routing
+Navigation
+-> go to transforms
+configuration > dial plan > transforms
+
+Create a new transform rule:
+-> Name : Add Domain
+-> pattern string: ^(\d{4})$ (matches 4 digit numbers)
+
+replacement string \1@example.com (appends domain)
+
+Verification
+-> Test transforms using the diagnostics tools
+
+-> Search rules
+Route calls to the appropriate zone based on the dialed URI
+
+Go to search rules
+-> Navigate to configuration > dial plan > search rules
+
+Create a new search rule
+-> Name Route_to_CUCM
+-> Priority : 1
+-> Pattern String : .*@example.com
+-> Target Zone: CUCM_Neighbor
+
+
+verification
+use Diagnostics > Search history to confirm call routing
+
+SIP Trunk intergration with Cisco UCM
+Integrate CUCM with expressway for sip-based communication
+on CUCM
+-> Navigate to Device > trunk > add new
+-> Device Name: EXPWY_TRUNK
+-> Trunk Type : SIP Trun
+-> Destination Address : FQDN/IP  of Expressway-C
+-> SIP port : 5061
+-> Security Profile: SIP Trunk with TLS
+
+2) On expressway-C:
+-> Ensure a neighbor zone points to cucm
+
+
+3) Configure Route Patterns;
+-> add route patterns on cucm to route calls via the Expressway trunk
+
+
+verification
+-> place test calls and verify call signaling under:
+Diagnostics > SIP Messages
+
+
+Summary of Configuration Elements
+dns records -> configure A and SRV records for Expressway-E
+
+Certificates -. use Microsoft CA to generate and install certificates
+
+Traversal Zones -> create client and server zones between expressway-C and Expressway-E
+
+neighbor Zones -> Set up zoens for communication with cucm or other SIP servers
+
+Transforms: Modify dial strings or SIP URIs for routing
+
+Search Rules : define rules to route calls to the appropriate zones or destiantions
+
+SIP trunks (CUCM) Create a SIP trunk on CUCM pointing to Expressway-C
+
+
+
+---------------------------------------
+
+ Troubleshoot a Business to Business (B2B) collaboration solution
+2.5.a DNS records (focus on Microsoft DNS)
+2.5.b Certificates (focus on Microsoft CA)
+2.5.c Traversal zones
+2.5.d Neighbor zones
+2.5.e Transforms
+2.5.f Search rules
+2.5.g SIP trunk integration with Cisco UCM
+
